@@ -1,3 +1,6 @@
 *.FASL
 *.fasl
 *.lisp-temp
+.DS_Store
+old.lisp
+test.lisp

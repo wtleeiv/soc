@@ -1,0 +1,31 @@
+* soc notes
+** plan
+*** know when tag starts
+**** keep track of tag name for closing later
+**** know if self closing (only /> needed) eg. meta
+***** global list of self-closing tags
+*** open 
+**** tag or string
+***** first item is keyword or string/mayble symbol 
+**** string  
+***** newline, print at current level without quotes 
+**** tag
+***** if has attribs, write key/value pairs on same line
+****** keep track of pairs (keyword, symbol/string)
+****** quote symbol values if needed (easier to write w/o quotes :)
+***** close opener (print '>') 
+***** write content string if present 
+*****  
+** flow
+*** deal with all list elements 
+**** recurse across list, setting booleans as needed
+***** tag or text, key/value pairs, content string
+*** recursively call if hits sub-list 
+**** car of list is not an atom
+*** close tag 
+**** just print </tag-name>
+**** let recursor worry about newlines or nah (look pretty)
+**** don't worry about self-closing for now
+
+
+
