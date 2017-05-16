@@ -1,5 +1,6 @@
 ;;;; package.lisp
 
 (defpackage #:soc
-  (:use #:cl))
+  (:use #:cl)
+  (:export #:soc))
 
