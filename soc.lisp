@@ -6,23 +6,54 @@
 (defparameter *tabs* (make-array 0 :fill-pointer 0 :adjustable 't :element-type 'character))
 
 ;;; utils
-;; branched (not (atom (car tree)))
+
+(defun inc-tab ()
+  (vector-push-extend #\Tab *tabs*))
+
+(defun dec-tab()
+  (vector-pop *tabs*))
+
+(defun indent ()
+  (format t *tabs*))
+
 (defun key-string (key)
   (string-downcase (symbol-name key)))
 
+;; branched (not (atom (car tree)))
 
-;; tags
+
+;;; tags
+;; why does macro call work here??
 
 (defmacro element (&body tree)
+  "new html element"
   `(progn
-     (print (key-string (car ,@tree)))
+     (format t "tag: ~a~%" (key-string (car ,@tree)))
      (walk (cdr ,@tree))))
 
 (defmacro code (&body tree)
+  "code string flexibility"
   `(progn
-     (print "codeses time")
+     (format t "code: ~a~%" (car ,@tree))
      (walk (cdr ,@tree))))
 
+(defmacro attrib (&body tree)
+  "atttribute: key/value pairs"
+  `(progn
+     (format t "key: ~a~%value: ~a~%" (car ,@tree) (cadr ,@tree))
+     (call-walk (cddr ,@tree))))
+
+(defmacro content (&body tree)
+  "content string (inner html, paragraph text)"
+  `(progn
+     (format t "content: ~a~%" (car ,@tree))
+     (call-walk (cdr ,@tree))))
+
+(defmacro attrib-content (&body tree)
+  "key/value pair or content string dispatch"
+  `(if (keywordp (car ,@tree))
+       (attrib ,@tree)
+       (content ,@tree)))
 
 
 ;;; traversal
@@ -34,31 +65,24 @@
          (element ,@tree)
          (code ,@tree))))
 
-(defun call-branch (tree)
-  (branch tree))
-
 ;; remeber to cal on both car and cdr in some cases (branching)
 (defmacro walk (&body tree)
   "attrib pairs, content, branch"
-  `(cond ((not ,@tree)
-          (print "done"))
-         ((atom (car ,@tree))
-          (print (car ,@tree))
-          (call-walk (cdr ,@tree)))
+  `(cond ((not ,@tree) ; nil
+          (format t "~a~%" "close"))
+         ((atom (car ,@tree)) ; key/value, content
+          (attrib-content ,@tree))
          ('t
           (call-branch (car ,@tree))
           (call-walk (cdr ,@tree)))))
 
+;; functions to expand car/cdr calls within walk
+(defun call-branch (tree)
+  (branch tree))
+
 (defun call-walk (tree)
   (walk tree))
 
-;; `(cond ((not ,@tree)                  ; nil
-;;         (lex:echo-line "done"))
-;;        ((atom (car ,@tree))           ; key/value, content
-;;         (walk (cdr ,@tree)))
-;;        ('t
-;;         (branch (car ,@tree))
-;;         (walk (cdr ,@tree))))
 
 ;;; call this
 

@@ -15,7 +15,8 @@
 ****** quote symbol values if needed (easier to write w/o quotes :)
 ***** close opener (print '>') 
 ***** write content string if present 
-*****  
+*** close
+**** close tag when hit nil 
 ** flow
 *** deal with all list elements 
 **** recurse across list, setting booleans as needed
@@ -26,6 +27,20 @@
 **** just print </tag-name>
 **** let recursor worry about newlines or nah (look pretty)
 **** don't worry about self-closing for now
+** reminders
+*** keywordp, symbol-name, string-downcase
 
 
-
+"html" 
+"head" 
+"meta" 
+:CHARSET 
+UTF-8 
+"done" 
+"done" 
+"body" 
+"p" 
+"herro" 
+"done" 
+"done" 
+"done" 
