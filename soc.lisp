@@ -16,6 +16,9 @@
 (defun indent ()
   (format t *tabs*))
 
+(defun newline ()
+  (format t "~%"))
+
 (defun key-string (key)
   (string-downcase (symbol-name key)))
 
@@ -25,28 +28,32 @@
 ;;; tags
 ;; why does macro call work here??
 
+;; will need to remember tag and call walk with it to close later
 (defmacro element (&body tree)
   "new html element"
   `(progn
-     (format t "tag: ~a~%" (key-string (car ,@tree)))
+     (format t "<~a" (key-string (car ,@tree)))
      (walk (cdr ,@tree))))
 
 (defmacro code (&body tree)
   "code string flexibility"
   `(progn
-     (format t "code: ~a~%" (car ,@tree))
+     (format t "~a" (car ,@tree))
      (walk (cdr ,@tree))))
 
 (defmacro attrib (&body tree)
   "atttribute: key/value pairs"
-  `(progn
-     (format t "key: ~a~%value: ~a~%" (car ,@tree) (cadr ,@tree))
+  `(let ((key (key-string (car ,@tree)))
+         (value (cadr ,@tree)))
+     (when (symbolp value)
+       (setf value (string-downcase value)))
+     (format t " ~a=\"~a\"" key value)
      (call-walk (cddr ,@tree))))
 
 (defmacro content (&body tree)
   "content string (inner html, paragraph text)"
   `(progn
-     (format t "content: ~a~%" (car ,@tree))
+     (format t ">~a" (car ,@tree))
      (call-walk (cdr ,@tree))))
 
 (defmacro attrib-content (&body tree)
@@ -54,6 +61,13 @@
   `(if (keywordp (car ,@tree))
        (attrib ,@tree)
        (content ,@tree)))
+
+(defun close-tag ()
+  (newline) ; TODO remove this once attrib/content sets close location
+  (indent)
+  (format t "close")
+  (if (> (fill-pointer *tabs*) 0)
+      (dec-tab)))
 
 
 ;;; traversal
@@ -69,7 +83,7 @@
 (defmacro walk (&body tree)
   "attrib pairs, content, branch"
   `(cond ((not ,@tree) ; nil
-          (format t "~a~%" "close"))
+          (close-tag))
          ((atom (car ,@tree)) ; key/value, content
           (attrib-content ,@tree))
          ('t
@@ -78,6 +92,9 @@
 
 ;; functions to expand car/cdr calls within walk
 (defun call-branch (tree)
+  (newline)
+  (inc-tab)
+  (indent)
   (branch tree))
 
 (defun call-walk (tree)
