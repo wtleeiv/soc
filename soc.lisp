@@ -31,42 +31,43 @@
 ;; will need to remember tag and call walk with it to close later
 (defmacro element (&body tree)
   "new html element"
-  `(progn
-     (format t "<~a" (key-string (car ,@tree)))
-     (walk (cdr ,@tree))))
+  `(let ((tag-name (key-string (car ,@tree))))
+     (format t "<~a" tag-name)
+     (walk tag-name (cdr ,@tree))))
 
 (defmacro code (&body tree)
   "code string flexibility"
   `(progn
      (format t "~a" (car ,@tree))
-     (walk (cdr ,@tree))))
+     (walk nil (cdr ,@tree))))
 
-(defmacro attrib (&body tree)
+(defmacro attrib (tag &body tree)
   "atttribute: key/value pairs"
   `(let ((key (key-string (car ,@tree)))
          (value (cadr ,@tree)))
      (when (symbolp value)
        (setf value (string-downcase value)))
      (format t " ~a=\"~a\"" key value)
-     (call-walk (cddr ,@tree))))
+     (call-walk ,tag (cddr ,@tree))))
 
-(defmacro content (&body tree)
+(defmacro content (tag &body tree)
   "content string (inner html, paragraph text)"
   `(progn
      (format t ">~a" (car ,@tree))
-     (call-walk (cdr ,@tree))))
+     (call-walk ,tag (cdr ,@tree))))
 
-(defmacro attrib-content (&body tree)
+(defmacro attrib-content (tag &body tree)
   "key/value pair or content string dispatch"
   `(if (keywordp (car ,@tree))
-       (attrib ,@tree)
-       (content ,@tree)))
+       (attrib ,tag ,@tree)
+       (content ,tag ,@tree)))
 
-(defun close-tag ()
-  (newline) ; TODO remove this once attrib/content sets close location
-  (indent)
-  (format t "close")
-  (if (> (fill-pointer *tabs*) 0)
+(defun close-tag (tag)
+  (when tag
+    (newline) ; TODO remove this once attrib/content sets close location
+    (indent)
+    (format t "</~a>" tag))
+  (when (> (fill-pointer *tabs*) 0)
       (dec-tab)))
 
 
@@ -80,15 +81,15 @@
          (code ,@tree))))
 
 ;; remeber to cal on both car and cdr in some cases (branching)
-(defmacro walk (&body tree)
+(defmacro walk (tag &body tree)
   "attrib pairs, content, branch"
   `(cond ((not ,@tree) ; nil
-          (close-tag))
+          (close-tag ,tag))
          ((atom (car ,@tree)) ; key/value, content
-          (attrib-content ,@tree))
+          (attrib-content ,tag ,@tree))
          ('t
           (call-branch (car ,@tree))
-          (call-walk (cdr ,@tree)))))
+          (call-walk ,tag (cdr ,@tree)))))
 
 ;; functions to expand car/cdr calls within walk
 (defun call-branch (tree)
@@ -97,8 +98,8 @@
   (indent)
   (branch tree))
 
-(defun call-walk (tree)
-  (walk tree))
+(defun call-walk (tag tree)
+  (walk tag tree))
 
 
 ;;; call this
