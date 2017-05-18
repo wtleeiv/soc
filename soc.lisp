@@ -22,6 +22,12 @@
 (defun key-string (key)
   (string-downcase (symbol-name key)))
 
+(defmacro no-attributes (&body tree)
+  `(not (atom (cadr ,@tree))))
+
+(defmacro no-content (&body tree)
+  `(or (not (atom (caddr ,@tree))) (not (caddr ,@tree))))
+
 ;; branched (not (atom (car tree)))
 
 
@@ -33,6 +39,8 @@
   "new html element"
   `(let ((tag-name (key-string (car ,@tree))))
      (format t "<~a" tag-name)
+     (when (no-attributes ,@tree) ; close opening tag
+       (format t ">"))
      (walk tag-name (cdr ,@tree))))
 
 (defmacro code (&body tree)
@@ -48,6 +56,8 @@
      (when (symbolp value)
        (setf value (string-downcase value)))
      (format t " ~a=\"~a\"" key value)
+     (when (no-content ,@tree) ; TODO wrap
+       (format t ">"))
      (call-walk ,tag (cddr ,@tree))))
 
 (defmacro content (tag &body tree)
