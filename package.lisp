@@ -2,5 +2,6 @@
 
 (defpackage #:soc
   (:use #:cl)
-  (:export #:soc))
+  (:export #:*soc*
+           #:soc))
 
