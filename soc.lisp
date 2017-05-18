@@ -3,9 +3,13 @@
 (in-package #:soc)
 
 ;;; specials
+(defparameter *soc* *standard-output*)
 (defparameter *tabs* (make-array 0 :fill-pointer 0 :adjustable 't :element-type 'character))
 
 ;;; utils
+
+(defmacro write-out (&rest args)
+  `(format *soc* ,@args))
 
 (defun inc-tab ()
   (vector-push-extend #\Tab *tabs*))
@@ -14,10 +18,10 @@
   (vector-pop *tabs*))
 
 (defun indent ()
-  (format t *tabs*))
+  (write-out *tabs*))
 
 (defun newline ()
-  (format t "~%"))
+  (write-out "~%"))
 
 (defun key-string (key)
   (string-downcase (symbol-name key)))
@@ -38,15 +42,15 @@
 (defmacro element (&body tree)
   "new html element"
   `(let ((tag-name (key-string (car ,@tree))))
-     (format t "<~a" tag-name)
+     (write-out "<~a" tag-name)
      (when (no-attributes ,@tree) ; close opening tag
-       (format t ">"))
+       (write-out ">"))
      (walk tag-name (cdr ,@tree))))
 
 (defmacro code (&body tree)
   "code string flexibility"
   `(progn
-     (format t "~a" (car ,@tree))
+     (write-out "~a" (car ,@tree))
      (walk nil (cdr ,@tree))))
 
 (defmacro attrib (tag &body tree)
@@ -55,15 +59,15 @@
          (value (cadr ,@tree)))
      (when (symbolp value)
        (setf value (string-downcase value)))
-     (format t " ~a=\"~a\"" key value)
+     (write-out " ~a=\"~a\"" key value)
      (when (no-content ,@tree) ; TODO wrap
-       (format t ">"))
+       (write-out ">"))
      (call-walk ,tag (cddr ,@tree))))
 
 (defmacro content (tag &body tree)
   "content string (inner html, paragraph text)"
   `(progn
-     (format t ">~a" (car ,@tree))
+     (write-out ">~a" (car ,@tree))
      (call-walk ,tag (cdr ,@tree))))
 
 (defmacro attrib-content (tag &body tree)
@@ -76,7 +80,7 @@
   (when tag
     (newline) ; TODO remove this once attrib/content sets close location
     (indent)
-    (format t "</~a>" tag))
+    (write-out "</~a>" tag))
   (when (> (fill-pointer *tabs*) 0)
       (dec-tab)))
 
