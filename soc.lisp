@@ -84,7 +84,7 @@
     return-this))
 
 (defun close-tag (tag)
-  (when tag
+  (when (and tag (not (self-closing tag)))
     (newline) ; TODO remove this once attrib/content sets close location
     (indent)
     (write-out "</~a>" tag))
