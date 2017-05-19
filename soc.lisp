@@ -27,7 +27,7 @@
   (string-downcase (symbol-name key)))
 
 (defmacro no-attributes (&body tree)
-  `(not (atom (cadr ,@tree))))
+  `(or (not (cadr ,@tree)) (not (atom (cadr ,@tree)))))
 
 (defmacro no-content (&body tree)
   `(or (not (atom (caddr ,@tree))) (not (caddr ,@tree))))
