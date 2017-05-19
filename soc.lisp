@@ -76,6 +76,13 @@
        (attrib ,tag ,@tree)
        (content ,tag ,@tree)))
 
+(defun self-closing (tag)
+  (let ((return-this nil))
+    (dolist (x '(area base br col embed hr img input link meta param source track wbr))
+      (when (equal tag (string-downcase x))
+        (setf return-this tag)))
+    return-this))
+
 (defun close-tag (tag)
   (when tag
     (newline) ; TODO remove this once attrib/content sets close location
