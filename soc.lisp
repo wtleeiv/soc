@@ -27,9 +27,11 @@
   (string-downcase (symbol-name key)))
 
 (defmacro no-attributes (&body tree)
+  "next item is nil or a list"
   `(or (not (cadr ,@tree)) (not (atom (cadr ,@tree)))))
 
 (defmacro no-content (&body tree)
+  "item after value is nil or a list"
   `(or (not (atom (caddr ,@tree))) (not (caddr ,@tree))))
 
 ;; branched (not (atom (car tree)))
