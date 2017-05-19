@@ -3,7 +3,8 @@
 (in-package #:soc)
 
 ;;; specials
-(defparameter *soc* *standard-output*)
+
+(defparameter *soc* *standard-output*) ; TODO doc-string/documentation keyword
 (defparameter *tabs* (make-array 0 :fill-pointer 0 :adjustable 't :element-type 'character))
 
 ;;; utils
@@ -34,26 +35,22 @@
   "item after value is nil or a list"
   `(or (not (atom (caddr ,@tree))) (not (caddr ,@tree))))
 
-;; branched (not (atom (car tree)))
-
 
 ;;; tags
-;; why does macro call work here??
 
-;; will need to remember tag and call walk with it to close later
 (defmacro element (&body tree)
   "new html element"
   `(let ((tag-name (key-string (car ,@tree))))
      (write-out "<~a" tag-name)
      (when (no-attributes ,@tree) ; close opening tag
        (write-out ">"))
-     (walk tag-name (cdr ,@tree))))
+     (walk tag-name (cdr ,@tree)))) ; why does macro call work here?
 
 (defmacro code (&body tree)
   "code string flexibility"
   `(progn
      (write-out "~a" (car ,@tree))
-     (walk nil (cdr ,@tree))))
+     (walk nil (cdr ,@tree)))) ; why does macro call work here?
 
 (defmacro attrib (tag &body tree)
   "atttribute: key/value pairs"
@@ -62,7 +59,7 @@
      (when (symbolp value)
        (setf value (string-downcase value)))
      (write-out " ~a=\"~a\"" key value)
-     (when (no-content ,@tree) ; TODO wrap
+     (when (no-content ,@tree)
        (write-out ">"))
      (call-walk ,tag (cddr ,@tree))))
 
@@ -78,7 +75,7 @@
        (attrib ,tag ,@tree)
        (content ,tag ,@tree)))
 
-(defun self-closing (tag)
+(defun self-closing (tag) ; TODO specialist ;)
   (let ((return-this nil))
     (dolist (x '(area base br col embed hr img input link meta param source track wbr))
       (when (equal tag (string-downcase x))
@@ -87,7 +84,7 @@
 
 (defun close-tag (tag)
   (when (and tag (not (self-closing tag)))
-    (newline) ; TODO remove this once attrib/content sets close location
+    (newline)
     (indent)
     (write-out "</~a>" tag))
   (when (> (fill-pointer *tabs*) 0)
@@ -103,7 +100,6 @@
          (element ,@tree)
          (code ,@tree))))
 
-;; remeber to cal on both car and cdr in some cases (branching)
 (defmacro walk (tag &body tree)
   "attrib pairs, content, branch"
   `(cond ((not ,@tree) ; nil
