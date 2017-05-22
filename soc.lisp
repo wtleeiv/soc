@@ -87,8 +87,11 @@
     (newline)
     (indent)
     (write-out "</~a>" tag))
-  (when (> (fill-pointer *tabs*) 0)
-      (dec-tab)))
+  (if (> (fill-pointer *tabs*) 0) ; dec-tab w/in block, double newline after block
+      (dec-tab)
+      (progn
+        (newline)
+        (newline))))
 
 
 ;;; traversal
