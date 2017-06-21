@@ -2,7 +2,7 @@
 a flexible html writer
 ## How to Install
 * best used with [lww](https://github.com/wtleeiv/lww)
-* clone this repo and soc repo into a location within ASDF source registry (eg. `~/.roswell/local-projects/`)
+* clone this repo and lww repo into a location within ASDF source registry (eg. `~/.roswell/local-projects/`)
   * if you have no idea what the ASDF source registry is, check [this](https://common-lisp.net/project/asdf/asdf/Configuring-ASDF-to-find-your-systems.html) out 
 * now that both projects are found by quicklisp you are ready to start writing web apps in lisp!!
 ## How to Use
