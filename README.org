@@ -1,2 +1,0 @@
-* SOC - Stream of Consciousness
-** a flexible html writer
